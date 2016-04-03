@@ -1,0 +1,302 @@
+## 1/13/2014
+1st pipeline draft was completed.
+
+ME-Scan_pipeline1.sh (make L1 BLAST database, run MEScan.py [BWA mapping of read2, filtered by BLAST of read1])
+
+ME-Scan_pipeline2.sh (insert_loci_*.py [make bed file of representative loci], MESCanAnalyzer1.py[compare with reference L1 element, known polymorphic L1 dataset])
+
+ME-Scan_pipeline3.sh (MESCanAnalyzer2.py[make master file for analyzing library’s length and targeted region depth])
+
+## 4/29/2014
+- 2nd pipeline draft was completed. It can calculate the depth of loci
+
+ME-Scan_pipeline1.sh
+ME-Scan_pipeline2.sh
+ME-Scan_pipeline3.sh
+depth_minus.py
+depth_plus.py
+insert_loci_minus.py
+insert_loci_plus.py
+MEScan2.py
+MESCanAnalyzer1.py
+MESCanAnalyzer2.py
+MEScan.py
+
+## 5/14/2014
+- BASH scripts has been merged as multi_BWA-Blast-own.sh
+
+multi_BWA-Blast-own.sh
+BBO_mapping.py
+BBO_bed_make.py
+BBO_comparison_known.py
+BBO_depth_caculator.py
+BBO_depth_minus.py
+BBO_depth_plus.py
+BBO_insert_minus.py
+BBO_insert_plus.py
+
+## 6/16/2014
+- BASH scrtipt for MOSAIK-Tagram pipeline has been completed. Only a few novel loci validated after removing all known polymorphic AluYb insertions. 
+
+multi_mosaik-tangram.sh
+
+## 8/11/2014
+- Copy reference genome to reference directory and index it again in the   
+- All output file name has been changed based on fastq file.
+- Remove insert*py because we can get the same information from depth*. (smallest in minus, largest in plus)
+- Creat ouput from pooled libraries
+- Download and modify journal.pgen.1002236.s019.txt from stewart et al. plos genetics 
+
+## 8/28/2014
+- Add record log file
+- Sperate commands in "counting read depth" step
+
+## 9/12/2014
+- Change the way to pool samples. We use after BWA and Blast (for bam, samtools merge)
+
+## 9/23/2014
+- Show history (open log file) before running
+- found "out of range" in chromosome Y -->I must have wrong code
+
+
+## 9/26/2014
+- I found which code is wrong and fixed it.
+- I also found unnecessary code remove it. 
+- They should take a lot of time (several week). AluYb8 and L1HS in current step-5 can be processed in few seconds
+
+
+## 10/24/2014
+- combine multi_mosaik-tangram.sh and multi_BWA-Blast-own.sh
+- change "BBO" to "BB"
+- liftover stewart et al. 2011 to hg19
+- seperate step of reference MEI database
+- add the step of calculating depth and coverage 
+
+## 12/01/2014 - 12/15/2014
+- operating pipeline 
+- remove part of Sample_all (unnessary, previous step-2,3)
+    echo "2. merging output files for pooling "
+    echo "3. sorting step2 pooled filter file "
+- debuging was completed
+
+## 12/22/2014 -
+
+- Add clean-up step
+
+- Fix bugs which extra words of “chr” in python for mapping when we remove duplications
+
+- Use parallel computing option - BWA mem “-t samtools sort “-@” blast “ -num_threads“. 
+
+- Create bam file instead of sam file in BB_mapping.py 
+  without pipe, there is no direct option in BWA MEM. so I listed up .sam file in cleanup step
+
+- Samtools index and idxstat instead of current command
+  inserted in both BB and MT mapping python codes
+
+- Make candidates lists for genotyping
+
+- ####  blast cutff of AluYb8 should be changed to 67.9 or lower.
+
+- Make table of cutoff coverage in each individuals (Temp_Part_table_each_indv.sh)
+- mean and median (TPM) target per reads in million
+
+- Reference MEI – dbRIP known polymorphic
+  http://dbrip.org/dbRIPdownload/Release2/
+  References:
+  http://www.ncbi.nlm.nih.gov/pubmed/12589758
+  http://www.ncbi.nlm.nih.gov/pubmed/12070800
+
+- Create Sensitivity plot 
+
+- mean and median (TPM) target per reads in million
+
+- fixed bug (choosing representive loci in plus direction)
+   ".. awk 'BEGIN{ptag=\"plus1\"} {if(\$4==ptag) array[\$4]=\$1\"_\"\$2\"_\"\$3;ptag=\$4} END {for (i in array) {print array[i]\"\t\"i}} .."
+-->".. awk '{array[\$4]=\$1\"\\t\"\$2\"\\t\"\$3} END {for (i in array) {print array[i]\"\\t\"i}}' .."
+
+- Use blast linear output format “-outfmt ”
+  Blast format output: https://www.biostars.org/p/88944/
+
+- split the main code to three 
+  MEScanAnalyzer1.1_BWA-BLAST_removing_duplicates.sh
+  MEScanAnalyzer1.1_BWA-BLAST.sh
+  MEScanAnalyzer1.1_Mosaik-Tangram.sh
+
+- the sub-codes were modulized for main code
+
+- add drawing modules using matpliotlib
+
+- debugging ## when fastqc file in same directory, read2 varable change to weird==> 
+  read2=$(ls $path_current"Sample_"$each_lib"/"*.fastq|grep -E "$each_lib.*fastq"|grep R2|awk -F"." '{print $1}')
+
+- Merge step 3-4 in two python codes of plus and minus. Follow general bed file format.  
+
+- add supports information for genotyping
+
+- distances from MEI estimates to real insertion sites 
+
+- if path_samtools="", sort option has an error because the version is 0.1.19-44428cd compairing with current working version, 1.1 (using htslib 1.1) in path_samtools="/usr/local/samtools-1.1/"
+
+  [bam_header_read] EOF marker is absent. The input is probably truncated.
+  [bam_header_read] invalid BAM binary header (this is not a BAM file).
+  Segmentation fault (core dumped)
+
+Names were changed.. because they are too confusing
+~~~~~~
+
+file_genotyping_plus --> file_New_polymophic_insertion_plus
+file_genotyping_minus --> file_New_polymophic_insertion_minus
+
+
+genotyping_candidates_plus_without_filtering_known_MEI --> Any_insertion_plus
+genotyping_candidates_minus_without_filtering_known_MEI --> Any_insertion_minus
+
+file_genotyping --> file_New_polymophic_insertion
+
+file_genotyping_plus_without_filtering_known_MEI --> file_Any_insertion_plus
+file_genotyping_minus_without_filtering_known_MEI --> file_Any_insertion_minus
+genotyping_candidates_plus_without_filtering_known_ --> Any_insertion_plus
+genotyping_candidates_minus_without_filtering_known_  --> Any_insertion_minus
+_without_filtering_known_MEI
+
+
+genotyping_candidates_plus --> New_polymophic_insertion_plus
+genotyping_candidates_minus --> New_polymophic_insertion_minus
+genotyping_candidates_*us --> New_polymophic_insertion_*us
+
+~~~~~~
+
+several pararmeters can be in working folder, user can choose one of them
+subdirectory can contain tag information by used option
+
+ -------------------------------------------------
+
+- FPR (1-Specificity)
+
+- path_samtools=""
+- add platform information in parameter
+
+- add dbRIP in table
+
+
+- Check memory and time
+
+
+#### add if command in 2A step the number of *mapping_minus*.temp or *mapping_plus*.temp is same to the number of individual for checking point 
+
+
+
+## 07/27/2015 -
+* echo .py  save as drawing.sh
+--xx actually the drawing.sh is not woking current bash file or another python file...  when the python code import matplotlib or numpy module in shell, it makes an error. So we need "source drawing.sh" after finish certain minor step in Major Step D. I added renewal option for drawing. sh  before Step D. It allow multople drawing if the user keep the file. 
+--> In main shell script (MEScanAnalyzer1.1_BWA-BLAST.sh).. 
+echo $cmd_drawing_new_num_loci_cumulative > $path_current"drawing.sh"
+eval "chmod 777 "$path_current"drawing.sh" 
+eval "source "$path_current"drawing.sh"
+When the user execute the MEScanAnalyzer1.1_BWA-BLAST.sh command, they should add “source “ in front of MEScanAnalyzer1.1_BWA-BLAST.sh.
+In addition, when I use exit command in the script with source command, terminal will be closed.
+So, I replace exit command to return command because of an information from certain forum.
+
+* adjust individual TPM cutoff 
+--> done in several steps including New polymorphic loci informaiton.
+* debug loci number per TPM boxplot (check the input file)
+--> done. missed input file.
+* total numberof new polymorphic loci at TPM cutoff
+
+
+* de novo removing background w/ no filtering
+--> done. the table was based on offsprings' average TPM cutoff. Now, it it is based on offsprings' individual TPM cutoff and adjusted two backgrounds [ (the loci offspring's TPM >= thresold, detected in other individuals) and (the loci offspring's TPM < thresold, detected in other individuals)
+* TPM vs #de novo insertion .. stringent thing will be tested
+
+
+* find number of reference full-length polymorphic SVA
+--> no information in the paper
+
+* family_list -->family_list.ped
+--> done
+* make path file
+--> modified code for using path file, and make example of path file and its README file.
+
+
+* print main result file with location whenever each step finished.
+
+* remove "search_radius", replace "mean_frag_length" to "window_size" in .parameters file
+
+* remove "parallel_computing" from .parameters file and use cores (automatically recoginzed)
+
+* debugging error messages caused by rm , ls(when the target directory doesn't exist yet), mkdir commands (when the target directory already exist)  used ls -1 instead of ls -l  using 2>/dev/null
+
+* debug import error message after other steps 
+
+* add total nubmer to boxplot new insertion 
+
+* change font size from heatmap (ENCODE) 
+
+## 08/28/2015
+
+* keep winodw concepts based on read2 mapping starting point but choose reading end point for identification   
+
+* add flexible locus clustring method.
+
+* after keep going program, it will go to excution step directly.
+
+## 08/31/2015
+* I added all check point before it finish each step. I believe that we can know  the running step is completed, so you won’t get any error from the code.
+
+## 09/01/2015
+* I added option to mask read2 which is covered at 100% by (a) repeat element(s) in python code in step B2
+
+## 09/02/2015
+* two option informations moved to parameters file
+  - clustering types; fixed and flexible
+  - mask read2 which is covered at 100% by (a) repeat element(s)
+
+* check_option_tag_from_parameters.sh in /usr/local/ME-Scan_tools/example_parameters
+
+* debugging opposite directional intersection between our dataset and fixed insertion loci in Sesitivity_calculator.sh based on primer_position in parameters
+
+* original version and initial additional codes (clustering--> choosing representative loci --> counting read depth --> counting the number of read variants--> sort and join them --> make pooling file) ==> new version ( clustering data with the number of read variants , pooling --> counting read depth)
+
+## 09/18/2015
+TPM_cutoff and #unique mapped reads are presented seperately in the bed files
+
+## 09/11/2015
+debugging errors (repeatcover_stat.csv, gene, de_novo, etc) caused by bed file format change
+debugging intersectBed error (replace to join command) when it makes New polymorphic ME bed file. 
+
+## 10/13/2015
+added extracting the sequences for alignment from FASTQ file(Read2)
+FASTA file format
+> individual_read_name
+Sequences
+
+
+## 10/15/2015
+- fixed an mistake in BB_all_insert_flexible.py to get both of start and end position,which Jui Wan found. 
+- sort based on end point of read2
+- clustering based on end point instead of initial point
+- make bed file using representative end point with + or - 10bp
+- for sensitivity, remove duplicated intersection based on fixed loci in TP calculation  
+- add pooled sensitivity plot
+- adjust 1k project deletion data for fixed loci
+- For Deletion data from known db, we used all known database instead of individual sub-dataset 
+- For Insertion data from the db, we used both from entire or individual 
+- known MEI from 1k project data
+- code change for polymorphic loci; remove a step and use entire insertion dataset
+- unify drawing_num_novel_loci_per_unrelated_individuals.py drawing_num_loci_by_TPM.py into drawing_num_loci_by_TPM.py, and also applied plot for whole polymorphic loci
+- add whole polymorphism ME-Scan data (previously it only shows novel polymorphism data) 
+- fontsize in total and legend of individual in plots was changed 
+
+ *sudo  cat ALL.wgs.integrated_sv_map_v2.2r0130502.svs.genotypes.vcf|grep CHROM|sed 's/\t/\n/g'|awk 'NR>=10'|awk '{print NR"\t"$1}'> ALL.wgs.integrated_sv_map_v2.20130502.svs.genotypes.individuals.list
+
+
+add sensitivity check point using increase number
+1. add pooled data
+3. Loci counting with unique>2
+4. optimize size or skipping on x axis
+
+
+## 12/15/2015
+In D15 step for extracting sequences,I add multple jobs with checkpoint
+replace *repeatcover.temp to *target.filtered* (it was before Blast filtering)
+In D12, if sample list includes incomplete trio family, the code skip them. 

@@ -1,0 +1,36 @@
+
+## Scaffold ##
+
+PRE. reference MEI dataset using BLAST against human genome, hg19 (you can skip if you've already made it)
+
+A. Pick up BLAST bit-score cutoffed reference MEI dataset
+
+B. BWA-Blast mapping & identification (1-5)
+
+	1. Mapped by BWA and filtered by Blast
+	2. preparations for identification of insertion sites 
+	3. Report the number of filtered reads
+	4. Clustering the insertion sites
+	5. Choose estimated points (reading end of representative reads) with depth and the number of read variants 
+
+C. Extract and liftover MEI from published dataset (dbRIP, Stewart et al. 2011, 1000 genome structural variant)
+
+D. Analysis & generate figures(1-13)
+
+	1. Caculate sensitivity"
+	1a. Report TPM cutff at 90, 95% sensitivity "
+	2. Draw sensitivity plot"
+	3. Candidates for genotyping (required step 2)"
+	4. Draw number of loci by TPM cutoff"
+	5. Draw boxplot of number of loci by TPM cutoff(required step 3)"
+	6. Draw number of new loci by TPM cutoff per unrelated individuals" 
+	7. Draw boxplot of number of new loci by TPM cutoff per unrelated individuals (required step 5)"
+	8. Draw accumulative  number of new loci  from unrelated individuals at chosen TPM cutoff (required step 5)"
+	9. Draw pie chart for showing intersection with functional regions"
+	10. Draw heatmap of intersection with ENCODE regulatory region (ChromHMM)"
+	11. Make table for identifying de novo insertion and Draw histogram of unique mapping reads from de novo insertion"
+	12. Draw the number of de novo loci by TPM cutoff"
+
+E. Primer design for genotyping
+F. Cleanup
+
