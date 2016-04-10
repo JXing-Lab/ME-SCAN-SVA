@@ -1,0 +1,4 @@
+Download <<http://hgdownload-test.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHmm/>>
+Date :Jun 23  2015 
+
+gzip -d *bed.gz
