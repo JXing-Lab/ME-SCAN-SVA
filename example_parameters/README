@@ -16,7 +16,3 @@
     clustering_type=fixed #==> 'fixed' or 'flexible' clustering method can be choosed
 
 # MEI_ref_RM, MEI_known_stewart, MEI_known_dbrip can allow multiple terms using regular expression e.g. MEI_ref_RM=AluYb8\|AluYb9
-
-# for mosaik-tangram
-    search_radius=480 # ==>For MOSAIK
-    mean_frag_length=500 #==> For MOSAIK
