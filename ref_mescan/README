@@ -1,8 +1,11 @@
+
+Download chromOut.tar.gz from <<http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/>>
 hg19.fa.bed
 
 Download Table S1. from <<http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1002236#s5>>
-
+journal.pgen.1002236.s019.txt
 
 
 
 Download <<ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/integrated_sv_map/ALL.wgs.integrated_sv_map_v2.20130502.svs.genotypes.vcf.gz>>
+ALL.wgs.integrated_sv_map_v2.20130502.svs.genotypes.vcf
