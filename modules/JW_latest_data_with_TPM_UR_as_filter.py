@@ -1,29 +1,18 @@
 #!/usr/bin/python
 
-import subprocess as sp
+import subprocess as sp, argparse
 
-beg = sp.Popen(['pwd'],stdout=sp.PIPE)
-location = beg.communicate()[0].strip()
-#print location
+parser=argparse.ArgumentParser()
+parser.add_argument('--mei',nargs='*')
+parser.add_argument('--option_tag',nargs='*')
+parser.add_argument('--path',nargs='*')
 
-f_b = open(location+"/parameter.txt","r")
-sp_info = f_b.readlines()
-f_b.close()
+args=parser.parse_args()
+insertME=''.join(args.mei)
+option_tag=''.join(args.option_tag)
+path_current=''.join(args.path)
 
-ME = sp_info[0].strip().split("=")[1]
-insertME = sp_info[2].strip().split("=")[1]
-
-filterType = input("Please enter the filter 1.mild or 2.stringent: ")
-iden = ""
-folder = ""
-if filterType == 1:
-	iden = sp_info[3].strip().split("=")[1]
-	folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_mild/"%ME
-elif filterType == 2:
-	iden = sp_info[4].strip().split("=")[1]
-	folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_stringent/"%ME
-
-fh = open(folder+"TPM_stats_90_maxUR_10_%s.txt"%(iden),"r")
+fh = open(path_current+"Results%s/TPM_stats_90_maxUR_10.txt"%option_tag,"r")
 ref = fh.readlines()[1:]
 fh.close()
 ind_TPM_UR = {}		#ind as key, (TPM,UR) as value
@@ -36,8 +25,8 @@ for row in ref:
 
 insert = ["Polymorphic","Novel_polymorphic"]
 for fa in insert:
-	print fa	
-	out_count = open(folder+"latest_data_with_TPM_UR_filters/%s_insertion_ind_count_loci_%s.bed"%(fa,iden),"w")
+#	print fa	
+	out_count = open(path_current+"output_bwa-blast%s/latest_data_TPM-10UR_filters_%s_insertion_ind_count_loci%stxt"%(option_tag,fa,option_tag),"w")
 	
 	orient = ""
 	for k in range(0,2,1):
@@ -46,11 +35,11 @@ for fa in insert:
 		else:
 			orient = "plus"
 
-		fk = open("/lab01/Projects/MEScan/%s/output_bwa-blast.29.%s.500.repeatcover_off.flexible./%s_insertion_%s.%s.29.%s.500.repeatcover_off.flexible.BB.bed"%(ME,iden,fa,orient,insertME,iden),"r")
+		fk = open(path_current+"output_bwa-blast%s/%s_insertion_%s.%s%sBB.bed"%(option_tag,fa,orient,insertME,option_tag),"r")
 		data = fk.readlines()
 		fk.close()
 
-		out = open(folder+"latest_data_with_TPM_UR_filters/latest_data_TPM-10UR_filters_%s_insertion_%s_%s.bed"%(fa,orient,iden),"w")
+		out = open(path_current+"output_bwa-blast%s/latest_data_TPM-10UR_filters_%s_insertion_%s%sbed"%(option_tag,fa,orient,option_tag),"w")
 
 		for row in data:
 			row=row.strip().split("\t")

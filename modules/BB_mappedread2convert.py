@@ -37,6 +37,9 @@ for row_path in f_path.readlines():
 	if columns_path[0] == "path_mescan":
 		path_mescan = columns_path[1]
 		path_mescan = path_mescan.rstrip('\n')
+	if columns_path[0] == "path_sort_temporary_directory":
+		path_sort_temporary_directory = columns_path[1]
+		path_sort_temporary_directory = path_sort_temporary_directory.rstrip('\n')
 
 path_ref_mescan=path_mescan+'ref_mescan/'
 
@@ -45,15 +48,15 @@ path_ref_mescan=path_mescan+'ref_mescan/'
 subprocess.call(''.join([ 'bamToBed -i '+read2+'_BB_sorted.bam|awk '+ap+'$5>='+Mapq_cutoff+'{print "chr"$1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|coverageBed -a '+path_ref_mescan+'hg19.fa.bed'+' -b stdin > '+read2+option_tag+'repeatcover.temp' ]),shell=True)
 
 if repeatcover=="on":
-        subprocess.call(''.join([ 'cat '+read2+option_tag+'repeatcover.temp|awk '+ap+'$6=="+" && $10!=1 {print $1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6} $6=="-" && $10!=1 {print $1"'+sl+'t'+'"$3"'+sl+'t'+'"$2"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|awk '+ap+'{print $4"'+sl+'t'+'"$1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|grep -v "GL"|sort -k 1b,1 >'+read2+'.rm_unplaced'+option_tag+'temp' ]),shell=True)
+        subprocess.call(''.join([ 'cat '+read2+option_tag+'repeatcover.temp|awk '+ap+'$6=="+" && $10!=1 {print $1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6} $6=="-" && $10!=1 {print $1"'+sl+'t'+'"$3"'+sl+'t'+'"$2"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|awk '+ap+'{print $4"'+sl+'t'+'"$1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|grep -v "GL"|sort -T '+path_sort_temporary_directory+' -k 1b,1 >'+read2+'.rm_unplaced'+option_tag+'temp' ]),shell=True)
 
 elif repeatcover=="off":
-        subprocess.call(''.join([ 'cat '+read2+option_tag+'repeatcover.temp|awk '+ap+'$6=="+"{print $1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6} $6=="-"{print $1"'+sl+'t'+'"$3"'+sl+'t'+'"$2"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|awk '+ap+'{print $4"'+sl+'t'+'"$1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|grep -v "chrGL"|sort -k 1b,1 >'+read2+'.rm_unplaced'+option_tag+'temp' ]),shell=True)
+        subprocess.call(''.join([ 'cat '+read2+option_tag+'repeatcover.temp|awk '+ap+'$6=="+"{print $1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6} $6=="-"{print $1"'+sl+'t'+'"$3"'+sl+'t'+'"$2"'+sl+'t'+'"$4"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|awk '+ap+'{print $4"'+sl+'t'+'"$1"'+sl+'t'+'"$2"'+sl+'t'+'"$3"'+sl+'t'+'"$5"'+sl+'t'+'"$6}'+ap+'|grep -v "chrGL"|sort -T '+path_sort_temporary_directory+' -k 1b,1 >'+read2+'.rm_unplaced'+option_tag+'temp' ]),shell=True)
 
 
 subprocess.call(''.join([ 'join '+read2+'.rm_unplaced'+option_tag+'temp '+read1+'_'+MEI+'_blast.filter|awk '+ap+'{print $2"'+sl+'t'+\
                                                 '"$3"'+sl+'t'+'"$4"'+sl+'t'+'"$1"'+sl+'t'+'"$5"'+sl+'t'+'"$6"'+sl+'t'+'"$17"'+sl+'t'+'"$16}'+ap+\
-                                                '|sed '+ap+'s/chrX/23/g'+ap+'|sed '+ap+'s/chrY/24/g'+ap+'|sed '+ap+'s/^chr//g'+ap+'|sort -k1n -k2n|sed '+\
+                                                '|sed '+ap+'s/chrX/23/g'+ap+'|sed '+ap+'s/chrY/24/g'+ap+'|sed '+ap+'s/^chr//g'+ap+'|sort -T '+path_sort_temporary_directory+' -k1n -k2n|sed '+\
                                                 ap+'s/^/chr/g'+ap+'|sed '+ap+'s/chr23/chrX/g'+ap+'|sed '+ap+'s/chr24/chrY/g'+ap+'> '+read2+'.pre_target.filtered'+option_tag+'temp']),shell=True)
 subprocess.call(''.join(['cat '+read2+'.pre_target.filtered'+option_tag+'temp|awk '+ap+'$7>='+Blast_cutoff1+'{print $0}'+ap+'> '+read2+'.target.filtered'+option_tag+'temp']),shell=True)
 

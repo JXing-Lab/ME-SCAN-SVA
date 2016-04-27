@@ -1,59 +1,51 @@
 #!/usr/bin/python
 
-import subprocess as sp
+import subprocess as sp,argparse
 
-beg = sp.Popen(['pwd'],stdout=sp.PIPE)
-location = beg.communicate()[0].strip()
-#print location
+parser=argparse.ArgumentParser()
+parser.add_argument('--mei',nargs='*')
+parser.add_argument('--option_tag',nargs='*')
+parser.add_argument('--path',nargs='*')
 
-f_b = open(location+"/parameter.txt","r")
-sp_info = f_b.readlines()
-f_b.close()
+args=parser.parse_args()
+insertME=''.join(args.mei)
+option_tag=''.join(args.option_tag)
+path_current=''.join(args.path)
 
-ME = sp_info[0].strip().split("=")[1]
-lib_file = sp_info[1].strip().split("=")[1]
-insertME = sp_info[2].strip().split("=")[1]
-
-filterType = 0
-filterType = input("Please enter 1.mild or 2.stringent: ")
-iden = ""
-output_folder=""
-input_folder=""
-if filterType == 1:
-	iden = sp_info[3].strip().split("=")[1]
-	output_folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_mild/sensitivity/"%ME
-	input_folder = "/lab01/Projects/MEScan/%s/juiwan/generating_list_of_fixed_insertion/mild/"%ME
-elif filterType == 2:
-	iden = sp_info[4].strip().split("=")[1]
-	output_folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_stringent/sensitivity/"%ME
-	input_folder = "/lab01/Projects/MEScan/%s/juiwan/generating_list_of_fixed_insertion/stringent/"%ME
-
-i = []
-f_lib = open("/lab01/Projects/MEScan/%s/juiwan/%s"%(ME,lib_file),"r")
+lib_i = []
+ln0 = sp.Popen(['ls',path_current],stdout = sp.PIPE)
+lib_name = sp.Popen(['grep','library'],stdin = ln0.stdout, stdout = sp.PIPE).communicate()[0].strip()
+#print lib_name
+f_lib = open(path_current+lib_name,"r")
 lib_text = f_lib.readlines()
 f_lib.close()
 for row in lib_text:
         row=row.strip().split("\t")
-        i.append(row[1])
-print i, len(i)
+        lib_i.append(row[1])
+
+is0 = sp.Popen(['ls',path_current],stdout = sp.PIPE)
+is1 = sp.Popen(['grep','Sample'],stdin = is0.stdout, stdout = sp.PIPE)
+ind_sample = sp.Popen(['awk','-F',r"_",r'{print $2}'],stdin = is1.stdout, stdout = sp.PIPE).communicate()[0].strip().split("\n")
+i = list(set(lib_i) & set(ind_sample))
+#print i, len(i)
 
 filterTPM = [x for x in range(20)]
 filterUR = [x for x in range(20)]
 str_filterUR = map(str,filterUR)
 
-out = open(output_folder+"overall_temp_sensitivity_analysis_with_variableTPM_and_UR.txt","w")
+out = open(path_current+"Results%s/sensitivity_stuff/overall_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"%option_tag,"w")
 out.write("TPM\UR\t"+"\t".join(str_filterUR)+"\n")
-out_avg = open(output_folder+"average_temp_sensitivity_analysis_with_variableTPM_and_UR.txt","w")
+out_avg = open(path_current+"Results%s/sensitivity_stuff/average_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"%option_tag,"w")
 out_avg.write("TPM\UR\t"+"\t".join(str_filterUR)+"\n")
 
 out_file = {}
 for ind in i:
-	out_file[ind] = open(output_folder+"%s_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"%ind,"w")
+	out_file[ind] = open(path_current+"Results%s/sensitivity_stuff/%s_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"%(option_tag,ind),"w")
 	out_file[ind].write("TPM\UR\t"+"\t".join(str_filterUR)+"\n")
 
-l1 = sp.Popen(['wc','-l','/lab01/Projects/MEScan/%s/ref_mescan_customized.29.%s.500.repeatcover_off.flexible./Fixed_Reference.%s.29.%s.500.repeatcover_off.flexible.bed'%(ME,iden,insertME,iden)],stdout=sp.PIPE)
+l1 = sp.Popen(['wc','-l','%sref_mescan_customized%s/Fixed_Reference.%s%sbed'%(path_current,option_tag,insertME,option_tag)],stdout=sp.PIPE)
 total_insert = int(l1.communicate()[0].strip().split(" ")[0])
-print total_insert
+#print total_insert
 for f_TPM in filterTPM:
 	across_UR = []
 	across_UR_avg = []
@@ -61,7 +53,7 @@ for f_TPM in filterTPM:
 	for ind in i:
 		across_UR_ind[ind] = []
 	for f_UR in filterUR:
-		print f_TPM, f_UR
+#		print f_TPM, f_UR
 		overall_insert = 0
 		d_aftTPM = {}		# ind as key, [insertion pos] as value
 		for ind in i:
@@ -75,7 +67,7 @@ for f_TPM in filterTPM:
 				type = "plus"
 #			print type
 
-			fh = open(input_folder+"Fixed_insertion_%s.%s.29.%s.500.repeatcover_off.flexible.BB.bed"%(type,insertME,iden),"r")
+			fh = open(path_current+"Results%s/fixed_insertion/Fixed_insertion_%s.%s%sBB.bed"%(option_tag,type,insertME,option_tag),"r")
 			data = fh.readlines()
 			fh.close()
 			
@@ -110,17 +102,17 @@ for ind in i:
 out.close()
 out_avg.close()
 
-s1 = sp.Popen(['ls',output_folder],stdout=sp.PIPE)
+s1 = sp.Popen(['ls',path_current+"Results%s/sensitivity_stuff/"%option_tag],stdout=sp.PIPE)
 s2 = sp.Popen(['grep','temp_sensitivity'],stdin = s1.stdout, stdout = sp.PIPE)
 input_files = s2.communicate()[0].strip().split("\n")
-print input_files,len(input_files)
+#print input_files,len(input_files)
 
 new_files = {}
 last_UR = filterUR[-1]
 last_TPM = filterTPM[-1]
 for fi in input_files:
-	print fi
-	fa = open(output_folder+fi,"r")
+#	print fi
+	fa = open(path_current+"Results%s/sensitivity_stuff/"%(option_tag)+fi,"r")
 	data = fa.readlines()[1:]
 	fa.close()
 
@@ -146,11 +138,11 @@ for fi in input_files:
 		if flag_last_TPM:
 			break
 
-print last_TPM,last_UR
+#print last_TPM,last_UR
 
 for ind in new_files.keys():
-	print ind
-	out_new = open(output_folder+ind+"_80%_sensitivity_analysis_with_variableTPM_and_UR.txt","w")
+#	print ind
+	out_new = open(path_current+"Results%s/sensitivity_stuff/"%(option_tag)+ind+"_80%_sensitivity_analysis_with_variableTPM_and_UR.txt","w")
 	out_new.write("TPM\UR\t")
 	for num in range(0,last_UR,1):
 		out_new.write(str(num)+"\t")
@@ -163,4 +155,4 @@ for ind in new_files.keys():
 				out_new.write(new_files[ind][tpm][ur]+"\t")
 			out_new.write(new_files[ind][tpm][last_UR]+"\n")
 	out_new.close()
-	r1 = sp.Popen(['rm',output_folder+ind+"_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"],stdout=sp.PIPE)
+	r1 = sp.Popen(['rm',path_current+"Results%s/sensitivity_stuff/"%(option_tag)+ind+"_temp_sensitivity_analysis_with_variableTPM_and_UR.txt"],stdout=sp.PIPE)

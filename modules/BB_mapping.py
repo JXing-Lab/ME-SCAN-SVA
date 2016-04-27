@@ -56,6 +56,6 @@ subprocess.call(''.join([ 'cat '+read1+'.fastq | perl -e '+ap+'$i=0;while(<>){if
 
 # Blast running 
 ## makedb command to bash script.
-subprocess.call(''.join([ path_blast+'blastn -task blastn-short -db '+path_current+MEI+'_fragment.fasta -query '+read1+'.fasta -outfmt 6 -out '+read1+'_'+MEI+'_blast.out']),shell=True)
+subprocess.call(''.join([ path_blast+'blastn -task blastn-short -db '+path_ref_blast+MEI+'_primer.fasta -query '+read1+'.fasta -outfmt 6 -out '+read1+'_'+MEI+'_blast.out']),shell=True)
 
 subprocess.call(''.join([ 'sort -k 1b,1 '+read1+'_'+MEI+'_blast.out >'+read1+'_'+MEI+'_blast.filter']),shell=True)
