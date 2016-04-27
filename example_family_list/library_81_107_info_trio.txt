@@ -1,0 +1,21 @@
+82	NA12864	Male	1459	father
+83	NA12865	Female	1459	mother
+84	NA12872	Male	1459	paternal grandfather
+85	NA12873	Female	1459	paternal grandmother
+86	NA12874	Male	1459	maternal grandfather
+87	NA12875	Female	1459	maternal grandmother
+88	NA12878	Female	1463	mother
+89	NA12891	Male	1463	maternal grandfather
+90	NA12892	Female	1463	maternal grandmother
+91	NA18500	Male	Y004	child
+92	NA18501	Male	Y004	father
+93	NA18502	Female	Y004	mother
+94	NA18503	Male	Y005	child
+95	NA18504	Male	Y005	father
+96	NA18505	Female	Y005	mother
+97	NA18506	Male	Y009	child
+98	NA18507	Male	Y009	father
+99	NA18508	Female	Y009	mother
+103	NA18515	Male	Y013	child
+104	NA18516	Male	Y013	father
+105	NA18517	Female	Y013	mother
