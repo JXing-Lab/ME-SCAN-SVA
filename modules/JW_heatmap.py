@@ -1,35 +1,23 @@
 #!/usr/bin/python
 
-import matplotlib.pyplot as plt
-import numpy as np
-import subprocess as sp
+import matplotlib.pyplot as plt, numpy as np, subprocess as sp, argparse
 
-beg = sp.Popen(['pwd'],stdout=sp.PIPE)
-location = beg.communicate()[0].strip()
-#print location
+parser=argparse.ArgumentParser()
+parser.add_argument('--option_tag',nargs='*')
+parser.add_argument('--path',nargs='*')
 
-f_b = open(location+"/parameter.txt","r")
-sp_info = f_b.readlines()
-f_b.close()
+args=parser.parse_args()
+option_tag=''.join(args.option_tag)
+path_current=''.join(args.path)
 
-ME = sp_info[0].strip().split("=")[1]
 
-filterType = input("Please enter the filter want: 1.mild or 2.stringent: ")
-folder = ""
-iden = ""
-if filterType == 1:
-	folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_mild/sensitivity/"%(ME)
-	iden = sp_info[3].strip().split("=")[1]
-elif filterType == 2:
-	folder = "/lab01/Projects/MEScan/%s/juiwan/output_from_inheritance_stringent/sensitivity/"%(ME)
-	iden = sp_info[4].strip().split("=")[1]
-
+folder = path_current+"Results%s/sensitivity_stuff/"%option_tag
 p1 = sp.Popen(['ls','%s'%folder],stdout=sp.PIPE)
 input_files = p1.communicate()[0].strip().split("\n")
 #print input_files
 
 max_UR = 10
-out = open(folder.split("sensitivity")[0]+"TPM_stats_90_maxUR_%i_%s.txt"%(max_UR,iden),"w")
+out = open(folder.split("sensitivity_stuff")[0]+"TPM_stats_90_maxUR_%i.txt"%(max_UR),"w")
 out.write("individual_ID\tUR\tTPM\t%_sensitivity\n")
 
 TPM_UR = {}
@@ -38,7 +26,7 @@ for x in range(0,len(input_files),1):
 	target_UR = 0
 	flag_UR = False
 	flag_TPM = False
-	print input_files[x]
+#	print input_files[x]
 	ind = input_files[x].split("_")[0]
 	fh = open(folder+input_files[x],"r")
 	data = fh.readlines()
@@ -67,13 +55,13 @@ for x in range(0,len(input_files),1):
 			out.write(ind+"\t%i\t%i\t%s\n"%(target_UR+1,row,data[row-1][target_UR]))
 out.close()
 
-print small
+#print small
 
 sorted_ID = sorted(TPM_UR.keys())
 avg_ov = sorted_ID[-2:]
 del sorted_ID[-2:]
-print avg_ov
-print sorted_ID
+#print avg_ov
+#print sorted_ID
 
 two_heatmap = [sorted_ID,avg_ov]
 for loop in range(0,len(two_heatmap),1):
@@ -107,6 +95,6 @@ for loop in range(0,len(two_heatmap),1):
 	else:
 		name = "average_overall"
 		fig.set_size_inches(25, 30)
-	fig.savefig(folder.split("sensitivity")[0]+'heatmap_sensitivity_%s_analysis_%s.pdf'%(name,iden))
+	fig.savefig(folder.split("sensitivity_stuff")[0]+'heatmap_sensitivity_%s_analysis.pdf'%(name))
 	plt.close(fig)
 	
