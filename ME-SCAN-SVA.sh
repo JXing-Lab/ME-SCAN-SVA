@@ -34,7 +34,7 @@ reexecute=$1
 parameters_file=$2
 
 # Software info
-Software="juiwan_linux_mescan_SVA"
+Software="ME-SCAN-SVA"
 Software_ver="1.1"
 Software_sub="BWA-BLAST"
 
@@ -315,7 +315,7 @@ elif [[ $Major_step == "B" || $Major_step == "b" ]]; then
         done
         echo "Mapping and filtering will be processed............................................."
 
-        while [ $(eval "ls "$path_current"Sample_*/*_blast.filter 2>/dev/null|wc -l") -lt $number_lib ]; do     sleep 10;      done
+	while [ $(eval "ps aux|grep '[p]ython3 "$path_modules"BB_mapping.py'|wc -l") -gt 0 ]; do sleep 10; done
 
         echo "Step-1 has been completed."
 
@@ -1238,7 +1238,7 @@ elif [[ $Major_step == "D" || $Major_step == "d" ]]; then
     # caution: certain gene name inlude "CDS", so I did't use gene name column for calculation or didn't use "grep" command for list
     echo -e "#gene_name,gene_ID,region,"$MEI"_chr,postion,pooled depth,pooled unique reads,individuals,individuals(TPM cutoffed),each TPM(TPM cutoffed),each unique reads(TPM cutoffed)"> $path_Result"CDS_interacted_polymorphism.csv"
 
-    cmd_polymorphism_CDS_plus_list="intersectBed -a "$file_polymorphism_plus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq> "$path_Result"CDS_interacted_polymorphism.csv"
+    cmd_polymorphism_CDS_plus_list="intersectBed -a "$file_polymorphism_plus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq>> "$path_Result"CDS_interacted_polymorphism.csv"
     cmd_polymorphism_CDS_minus_list="intersectBed -a "$file_polymorphism_minus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq>> "$path_Result"CDS_interacted_polymorphism.csv"
 
     eval $cmd_polymorphism_CDS_plus_list
@@ -1257,7 +1257,7 @@ elif [[ $Major_step == "D" || $Major_step == "d" ]]; then
     echo -e "\e[0;0m the file named as \e[0;32m"$path_output"CDS_interacted_polymorphism.bed  \e[0;0m has been generated"
     echo -e "#gene_name,gene_ID,region,"$MEI"_chr,postion,pooled depth,pooled unique reads,individuals,indiviuals(TPM cutoffed),each TPM(TPM cutoffed),each unique reads(TPM cutoffed)"> $path_Result"CDS_interacted_novel.csv"
 
-    cmd_novel_CDS_plus_list="intersectBed -a "$file_polymorphism_novel_plus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq> "$path_Result"CDS_interacted_novel.csv"
+    cmd_novel_CDS_plus_list="intersectBed -a "$file_polymorphism_novel_plus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq>> "$path_Result"CDS_interacted_novel.csv"
     cmd_novel_CDS_minus_list="intersectBed -a "$file_polymorphism_novel_minus_TPMcutoff" -b "$path_ref_gencode"gencode.v19.protein_coding.bed -wa -wb|sed 's/,/|/g'|awk '\$14==\"CDS\"{print \$16\",\"\$15\",\"\$14\",\"\$1\",\"\$2\",\"\$4\",\"\$5\",\"\$6\",\"\$8\",\"\$9\",\"\$10}'|sed -r 's/\"||;//g'|uniq>> "$path_Result"CDS_interacted_novel.csv"
 
     eval $cmd_novel_CDS_plus_list
